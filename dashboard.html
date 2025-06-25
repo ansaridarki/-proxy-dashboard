@@ -122,7 +122,7 @@
 
     if (!currentUser) {
       alert('لطفاً ابتدا وارد شوید.');
-      window.location.href = 'login.html';
+      window.location.href = 'index.html';
     } else {
       welcomeMessage.textContent = `به سایت ${currentUser} خوش آمدید`;
     }
@@ -155,7 +155,7 @@
     // تابع خروج
     function logout() {
       sessionStorage.clear();
-      window.location.href = 'login.html';
+      window.location.href = 'index.html';
     }
   </script>
 
