@@ -1,0 +1,263 @@
+<!DOCTYPE html>
+<html lang="fa">
+<head>
+  <meta charset="UTF-8" />
+  <title>پروفایل کاربری</title>
+  <link href="https://fonts.googleapis.com/css2?family=Vazirmatn&display=swap" rel="stylesheet">
+  <style>
+    body {
+      font-family: 'Vazirmatn', sans-serif;
+      background-color: #121212;
+      color: #eee;
+      direction: rtl;
+      margin: 0;
+      padding: 0;
+      display: flex;
+      justify-content: center;
+      align-items: flex-start;
+      min-height: 100vh;
+      padding-top: 40px;
+    }
+
+    .profile-container {
+      background-color: #1e1e1e;
+      padding: 30px 40px;
+      border-radius: 20px;
+      width: 90%;
+      max-width: 600px;
+      box-shadow: 0 0 20px rgba(0,0,0,0.6);
+    }
+
+    h2 {
+      text-align: center;
+      margin-bottom: 30px;
+      font-weight: 700;
+      font-size: 28px;
+      color: #bb86fc;
+    }
+
+    form {
+      display: flex;
+      flex-direction: column;
+      gap: 20px;
+    }
+
+    .input-row {
+      display: flex;
+      justify-content: space-between;
+      gap: 15px;
+      align-items: center;
+    }
+
+    label {
+      flex: 0 0 90px;
+      font-weight: 600;
+      font-size: 16px;
+      color: #ccc;
+      user-select: none;
+    }
+
+    input[type="text"],
+    input[type="email"],
+    input[type="tel"] {
+      flex: 1;
+      padding: 14px 16px;
+      border-radius: 12px;
+      border: none;
+      background-color: #2a2a2a;
+      color: #eee;
+      font-size: 16px;
+      outline: none;
+      transition: background-color 0.3s ease;
+    }
+
+    input[type="text"]:focus,
+    input[type="email"]:focus,
+    input[type="tel"]:focus {
+      background-color: #3d3d3d;
+    }
+
+    .profile-image-row {
+      display: flex;
+      align-items: center;
+      gap: 20px;
+      justify-content: flex-start;
+    }
+
+    .profile-image-preview {
+      width: 100px;
+      height: 100px;
+      border-radius: 50%;
+      background-color: #6200ee;
+      background-position: center;
+      background-size: cover;
+      box-shadow: 0 0 10px #6200eeaa;
+      cursor: pointer;
+      flex-shrink: 0;
+      border: 2px solid #bb86fc;
+    }
+
+    .choose-image-label {
+      color: #bb86fc;
+      font-weight: 600;
+      cursor: pointer;
+      user-select: none;
+      font-size: 16px;
+      transition: color 0.3s ease;
+    }
+
+    .choose-image-label:hover {
+      color: #dda0ff;
+    }
+
+    input[type="file"] {
+      display: none;
+    }
+
+    button {
+      margin-top: 30px;
+      padding: 16px;
+      font-size: 18px;
+      font-weight: 700;
+      background-color: #bb86fc;
+      border: none;
+      border-radius: 16px;
+      color: #121212;
+      cursor: pointer;
+      transition: background-color 0.3s ease;
+    }
+
+    button:hover {
+      background-color: #dda0ff;
+    }
+
+    #successMessage {
+      margin-top: 15px;
+      color: #4caf50;
+      font-weight: bold;
+      text-align: center;
+      display: none;
+      animation: fadeIn 0.6s ease forwards;
+    }
+
+    @keyframes fadeIn {
+      from {opacity: 0;}
+      to {opacity: 1;}
+    }
+  </style>
+</head>
+<body>
+
+  <div class="profile-container">
+    <h2>ویرایش پروفایل</h2>
+    <form id="profileForm" autocomplete="off">
+      <div class="input-row">
+        <label for="firstName">نام</label>
+        <input type="text" id="firstName" placeholder="نام" required />
+      </div>
+      <div class="input-row">
+        <label for="lastName">فامیل</label>
+        <input type="text" id="lastName" placeholder="فامیل" required />
+      </div>
+      <div class="input-row">
+        <label for="phone">شماره تلفن</label>
+        <input type="tel" id="phone" placeholder="شماره تلفن" required pattern="[0-9۰-۹]{10,15}" />
+      </div>
+      <div class="input-row">
+        <label for="email">ایمیل</label>
+        <input type="email" id="email" placeholder="ایمیل" required />
+      </div>
+      <div class="profile-image-row">
+        <div id="profileImagePreview" class="profile-image-preview" title="انتخاب عکس پروفایل"></div>
+        <label for="profileImageInput" class="choose-image-label">انتخاب عکس پروفایل</label>
+        <input type="file" id="profileImageInput" accept="image/*" />
+      </div>
+      <button type="submit">ذخیره اطلاعات</button>
+      <div id="successMessage">اطلاعات با موفقیت ذخیره شد!</div>
+    </form>
+  </div>
+
+  <script>
+    const profileForm = document.getElementById('profileForm');
+    const firstNameInput = document.getElementById('firstName');
+    const lastNameInput = document.getElementById('lastName');
+    const phoneInput = document.getElementById('phone');
+    const emailInput = document.getElementById('email');
+    const profileImageInput = document.getElementById('profileImageInput');
+    const profileImagePreview = document.getElementById('profileImagePreview');
+    const successMessage = document.getElementById('successMessage');
+
+    const currentUser = sessionStorage.getItem('currentUser');
+
+    if (!currentUser) {
+      alert('لطفاً ابتدا وارد شوید.');
+      window.location.href = 'login.html';
+    }
+
+    // بارگذاری اطلاعات قبلی
+    function loadProfile() {
+      const profileJSON = localStorage.getItem(`${currentUser}_profile`);
+      if (profileJSON) {
+        const profile = JSON.parse(profileJSON);
+        firstNameInput.value = profile.firstName || '';
+        lastNameInput.value = profile.lastName || '';
+        phoneInput.value = profile.phone || '';
+        emailInput.value = profile.email || '';
+        if (profile.profileImage && profile.profileImage !== '') {
+          profileImagePreview.style.backgroundImage = `url(${profile.profileImage})`;
+        } else {
+          profileImagePreview.style.backgroundImage = 'none';
+        }
+      }
+    }
+
+    loadProfile();
+
+    // انتخاب عکس و پیش‌نمایش
+    profileImageInput.addEventListener('change', function() {
+      const file = this.files[0];
+      if (file) {
+        const reader = new FileReader();
+        reader.onload = function(e) {
+          profileImagePreview.style.backgroundImage = `url(${e.target.result})`;
+        }
+        reader.readAsDataURL(file);
+      }
+    });
+
+    // کلیک روی پیش‌نمایش برای باز کردن انتخاب فایل
+    profileImagePreview.addEventListener('click', () => {
+      profileImageInput.click();
+    });
+
+    profileForm.addEventListener('submit', function(e) {
+      e.preventDefault();
+
+      const profileData = {
+        firstName: firstNameInput.value.trim(),
+        lastName: lastNameInput.value.trim(),
+        phone: phoneInput.value.trim(),
+        email: emailInput.value.trim(),
+        profileImage: ''
+      };
+
+      // اگر عکس انتخاب شده باشه، عکس پیش نمایش را ذخیره می‌کنیم
+      const bgImage = profileImagePreview.style.backgroundImage;
+      if (bgImage && bgImage !== 'none') {
+        // backgroundImage به صورت url("data:image/...")
+        // می‌خواهیم فقط محتوای base64 را بگیریم
+        profileData.profileImage = bgImage.slice(5, -2);
+      }
+
+      localStorage.setItem(`${currentUser}_profile`, JSON.stringify(profileData));
+
+      successMessage.style.display = 'block';
+      setTimeout(() => {
+        successMessage.style.display = 'none';
+        window.location.href = 'dashboard.html';
+      }, 2000);
+    });
+  </script>
+
+</body>
+</html>
